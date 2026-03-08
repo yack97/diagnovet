@@ -10,7 +10,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <!-- Iconos Phosphor Icons para un aspecto premium -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <link rel="preconnect" href="https://storage.googleapis.com">
+
+    <!-- Firebase SDK (Reservado de Hosting para no exponer config en código) -->
+    <script defer src="/__/firebase/10.8.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.8.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.8.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/10.8.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+
+    <script defer src="js/app.js?v=2.2"></script>
 </head>
 
 <body>
@@ -363,14 +374,7 @@
         <span id="toast-message">Sesión iniciada correctamente</span>
     </div>
 
-    <!-- Firebase SDK (Reservado de Hosting para no exponer config en código) -->
-    <script src="/__/firebase/10.8.0/firebase-app-compat.js"></script>
-    <script src="/__/firebase/10.8.0/firebase-auth-compat.js"></script>
-    <script src="/__/firebase/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="/__/firebase/10.8.0/firebase-storage-compat.js"></script>
-    <script src="/__/firebase/init.js"></script>
 
-    <script src="js/app.js?v=2.1"></script>
 </body>
 
 </html>
