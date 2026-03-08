@@ -316,6 +316,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // =========================================
+    // PATIENTS SEARCH LOGIC (Firestore)
+    // =========================================
+    const btnSearchPatient = document.getElementById('btn-search-patient');
+    const inputSearchPatient = document.getElementById('patient-search-input');
+    const searchStatus = document.getElementById('search-status');
+    const searchLoader = document.getElementById('search-loader');
+    const searchMessage = document.getElementById('search-message');
+    const patientsResultsContainer = document.getElementById('patients-results-container');
+
+    if (btnSearchPatient) {
+        btnSearchPatient.addEventListener('click', async () => {
+            const query = inputSearchPatient.value.trim();
+
+            if (!query) {
+                showToast('Ingresa el nombre del paciente a buscar');
+                return;
+            }
+
+            // UI Feedback
+            patientsResultsContainer.innerHTML = '';
+            searchStatus.style.display = 'block';
+            searchLoader.style.display = 'inline-block';
+            searchMessage.textContent = 'Buscando historiales clínicos...';
+
+            try {
+                // Initialize Firestore if ready (using compat)
+                const db = firebase.firestore();
+
+                // Firestore queries are case-sensitive by default.
+                // For a robust search, an external index like Algolia or a specialized field (e.g. paciente_lowercase) is recommended.
+                // For this MVP, we query where the field matches exactly or starting with the query
+                const snapshot = await db.collection('extracciones_veterinaria')
+                    .where('datos_extraidos.paciente', '>=', query)
+                    .where('datos_extraidos.paciente', '<=', query + '\uf8ff')
+                    .get();
+
+                searchLoader.style.display = 'none';
+
+                if (snapshot.empty) {
+                    searchMessage.textContent = 'No se encontraron historiales para ese paciente.';
+                    return;
+                }
+
+                searchStatus.style.display = 'none'; // Hide status text, show results
+
+                const template = document.getElementById('diagnosis-card-template');
+
+                // We construct the same response structure expected by createDiagnosisCard
+                const renderPromises = snapshot.docs.map(async docSnapshot => {
+                    const data = docSnapshot.data();
+                    const mockRes = {
+                        status: 'success',
+                        filename: data.filename || `Documento_ID_${docSnapshot.id}.pdf`,
+                        datos_extraidos: data.datos_extraidos,
+                        imagenes_urls: data.imagenes_urls || []
+                    };
+
+                    try {
+                        const card = await createDiagnosisCard(mockRes, template);
+                        patientsResultsContainer.appendChild(card);
+                    } catch (err) {
+                        console.error("Error drawing searched card:", err);
+                    }
+                });
+
+                await Promise.all(renderPromises);
+                showToast(`Se encontraron ${snapshot.docs.length} registros`);
+
+            } catch (error) {
+                console.error("Firestore Search Error:", error);
+                searchLoader.style.display = 'none';
+                searchMessage.textContent = 'Ocurrió un error al buscar en la base de datos. Verifica tus permisos.';
+                showToast('Error en la búsqueda');
+            }
+        });
+
+        // Permite buscar presionando Enter
+        inputSearchPatient.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                btnSearchPatient.click();
+            }
+        });
+    }
+
     // Utility: Generate UI Card and Load Firebase Images
     async function createDiagnosisCard(res, template) {
         const clone = template.content.cloneNode(true);
