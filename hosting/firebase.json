@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "veterinaria-site",
     "public": "public",
     "ignore": [
       "firebase.json",

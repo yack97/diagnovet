@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <!-- Iconos Phosphor Icons para un aspecto premium -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
+
 <body>
 
     <!-- Pantalla de Login -->
@@ -24,7 +26,7 @@
                     <h1>DiagnoVet</h1>
                     <p>Accede a tu cuenta institucional</p>
                 </div>
-                
+
                 <form id="login-form">
                     <div class="input-group">
                         <label for="email">Correo Electrónico</label>
@@ -33,7 +35,7 @@
                             <input type="email" id="email" placeholder="dr@diagnovet.com" required>
                         </div>
                     </div>
-                    
+
                     <div class="input-group">
                         <label for="password">Contraseña</label>
                         <div class="input-icon">
@@ -58,7 +60,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- Elementos decorativos de fondo (Glassmorphism) -->
         <div class="bg-shape shape-1"></div>
         <div class="bg-shape shape-2"></div>
@@ -73,7 +75,7 @@
                 </div>
                 <h2>DiagnoVet</h2>
             </div>
-            
+
             <ul class="nav-menu">
                 <li class="nav-item active">
                     <a href="#" data-target="home">
@@ -121,19 +123,22 @@
                     <i class="ph ph-magnifying-glass"></i>
                     <input type="text" placeholder="Buscar pacientes, citas...">
                 </div>
-                
+
                 <div class="user-profile">
                     <button class="icon-btn">
                         <i class="ph ph-bell"></i>
                         <span class="badge">3</span>
                     </button>
                     <div class="avatar">
-                        <img src="https://ui-avatars.com/api/?name=Dr+Admin&background=0284c7&color=fff&rounded=true" alt="Perfil Usuario">
+                        <img src="https://ui-avatars.com/api/?name=Dr+Admin&background=0284c7&color=fff&rounded=true"
+                            alt="Perfil Usuario">
                     </div>
                 </div>
             </header>
 
-            <div class="content-wrapper">
+
+            <!-- Vista General (Dashboard Original) -->
+            <div id="content-home" class="content-wrapper active-section">
                 <div class="page-header">
                     <h2>Bienvenido de vuelta, Dr.</h2>
                     <p>Resumen del día en la clínica.</p>
@@ -150,7 +155,7 @@
                             <p class="stat-number">124</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon green">
                             <i class="ph ph-calendar-check"></i>
@@ -160,7 +165,7 @@
                             <p class="stat-number">8</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon orange">
                             <i class="ph ph-first-aid-kit"></i>
@@ -200,6 +205,55 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Vista Historiales (Subida de PDFs) -->
+            <div id="content-records" class="content-wrapper hidden-section" style="display: none;">
+                <div class="page-header">
+                    <h2>Historiales Médicos</h2>
+                    <p>Analiza documentos y resultados de laboratorio rápidamente.</p>
+                </div>
+
+                <div class="panel glass-panel upload-panel">
+                    <div class="panel-header">
+                        <h3>Cargar Documentos Clínicos</h3>
+                        <p class="subtitle">Sube PDFs para extraer información clave de forma automática usando nuestra
+                            IA.</p>
+                    </div>
+
+                    <form id="upload-form" class="upload-area">
+                        <div class="upload-dropzone" id="dropzone">
+                            <i class="ph ph-cloud-arrow-up"></i>
+                            <h4>Arrastra tus PDFs aquí o haz clic para explorar</h4>
+                            <p>Soporta múltiples archivos PDF (.pdf)</p>
+                            <input type="file" id="pdf-upload" multiple accept=".pdf" class="file-input-hidden">
+                            <button type="button" class="btn-secondary"
+                                onclick="document.getElementById('pdf-upload').click()">
+                                Seleccionar Archivos
+                            </button>
+                        </div>
+
+                        <!-- Lista de archivos seleccionados -->
+                        <div id="file-list" class="file-list hidden">
+                            <!-- Los archivos se insertarán aquí dinámicamente -->
+                        </div>
+
+                        <div class="upload-actions">
+                            <button type="submit" id="btn-upload" class="btn-primary" disabled>
+                                <i class="ph ph-magic-wand"></i>
+                                <span>Analizar Documentos</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultados del OCR -->
+                    <div id="ocr-results" class="ocr-results hidden">
+                        <div class="panel-header" style="margin-top: 2rem;">
+                            <h3>Resultados de Extracción</h3>
+                        </div>
+                        <pre id="result-json" class="json-viewer"></pre>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -211,4 +265,5 @@
 
     <script src="js/app.js"></script>
 </body>
+
 </html>

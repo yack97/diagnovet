@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "immersion-005-7e407"
-  }
+  },
+  "targets": {
+    "immersion-005-7e407": {
+      "hosting": {
+        "veterinaria-site": [
+          "diagnovet"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

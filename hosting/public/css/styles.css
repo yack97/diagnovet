@@ -10,7 +10,7 @@
     --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.08);
     --sidebar-width: 260px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Concepto de Veterinaria */
     --accent-blue: #3b82f6;
     --accent-green: #10b981;
@@ -73,8 +73,15 @@ body {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .glass-card {
@@ -147,9 +154,9 @@ body {
 .input-icon input {
     width: 100%;
     padding: 0.875rem 1rem 0.875rem 3rem;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255, 255, 255, 0.8);
     font-size: 1rem;
     color: var(--text-main);
     transition: var(--transition);
@@ -162,7 +169,7 @@ body {
     background: var(--white);
 }
 
-.input-icon input:focus + i {
+.input-icon input:focus+i {
     color: var(--primary);
 }
 
@@ -255,8 +262,13 @@ body {
 }
 
 @keyframes drift {
-    from { transform: translate(0, 0); }
-    to { transform: translate(50px, 50px); }
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(50px, 50px);
+    }
 }
 
 /* =========================================
@@ -270,11 +282,11 @@ body {
 .sidebar {
     width: var(--sidebar-width);
     background: var(--white);
-    border-right: 1px solid rgba(0,0,0,0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
 }
 
 .sidebar-header {
@@ -335,7 +347,7 @@ body {
 }
 
 .sidebar-footer {
-    border-top: 1px solid rgba(0,0,0,0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     padding-top: 1rem;
 }
 
@@ -377,7 +389,7 @@ body {
     align-items: center;
     padding: 1rem 2rem;
     background: var(--white);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 5;
@@ -455,7 +467,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--white);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
     cursor: pointer;
 }
@@ -498,17 +510,17 @@ body {
     background: var(--white);
     padding: 1.5rem;
     border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: center;
     gap: 1.25rem;
     transition: var(--transition);
-    border: 1px solid rgba(0,0,0,0.02);
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
 }
 
 .stat-icon {
@@ -521,9 +533,20 @@ body {
     font-size: 2rem;
 }
 
-.stat-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.stat-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.stat-icon.orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.stat-icon.blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.stat-icon.green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.stat-icon.orange {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
 
 .stat-details h3 {
     font-size: 0.9rem;
@@ -542,8 +565,8 @@ body {
     background: var(--white);
     border-radius: 20px;
     padding: 1.75rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.03);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .w-full {
@@ -581,7 +604,7 @@ body {
     display: flex;
     align-items: center;
     padding: 1.25rem;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 16px;
     margin-bottom: 1rem;
     transition: var(--transition);
@@ -589,7 +612,7 @@ body {
 
 .appointment-item:hover {
     background: #f8fafc;
-    border-color: rgba(0,0,0,0.1);
+    border-color: rgba(0, 0, 0, 0.1);
     transform: translateX(4px);
 }
 
@@ -603,7 +626,7 @@ body {
     font-weight: 700;
     font-size: 1.25rem;
     margin-right: 1.25rem;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .app-info {
@@ -649,13 +672,14 @@ body {
     color: var(--text-main);
     padding: 1rem 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     gap: 0.75rem;
     transform: translateY(120px);
     opacity: 0;
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Spring bounce */
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Spring bounce */
     z-index: 100;
     border-left: 5px solid #10b981;
     font-weight: 500;
@@ -669,4 +693,182 @@ body {
 .toast i {
     color: #10b981;
     font-size: 1.5rem;
+}
+
+/* =========================================
+   UPLOAD PANEL (RECORDS VIEW)
+   ========================================= */
+.upload-panel {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.upload-panel .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.upload-area {
+    margin-top: 2rem;
+}
+
+.upload-dropzone {
+    border: 2px dashed rgba(2, 132, 199, 0.3);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: rgba(241, 245, 249, 0.5);
+    transition: var(--transition);
+    cursor: pointer;
+    margin-bottom: 2rem;
+}
+
+.upload-dropzone.dragover {
+    background: rgba(224, 242, 254, 0.8);
+    border-color: var(--primary);
+    transform: scale(1.02);
+}
+
+.upload-dropzone i {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.upload-dropzone h4 {
+    font-size: 1.15rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.upload-dropzone p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+/* File List */
+.file-list {
+    margin-bottom: 2rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--white);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.file-details h5 {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 0.2rem;
+}
+
+.file-details span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.btn-remove {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-remove:hover {
+    color: #ef4444;
+}
+
+.upload-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#btn-upload {
+    width: auto;
+    padding: 1rem 2rem;
+}
+
+/* JSON Viewer */
+.json-viewer {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-family: monospace;
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.json-string {
+    color: #a7f3d0;
+}
+
+.json-number {
+    color: #fde047;
+}
+
+.json-boolean {
+    color: #fca5a5;
+}
+
+.json-null {
+    color: #d8b4fe;
+}
+
+.json-key {
+    color: #93c5fd;
 }
