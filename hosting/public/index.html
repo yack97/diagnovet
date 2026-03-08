@@ -21,7 +21,7 @@
     <script defer src="/__/firebase/10.8.0/firebase-storage-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
 
-    <script defer src="js/app.js?v=2.2"></script>
+    <script defer src="js/app.js?v=3.3"></script>
 </head>
 
 <body>
@@ -89,33 +89,15 @@
 
             <ul class="nav-menu">
                 <li class="nav-item active">
-                    <a href="#" data-target="home">
-                        <i class="ph ph-squares-four"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" data-target="patients">
-                        <i class="ph ph-cat"></i>
-                        <span>Pacientes</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" data-target="appointments">
-                        <i class="ph ph-calendar-blank"></i>
-                        <span>Citas</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="#" data-target="records" id="nav-records">
                         <i class="ph ph-cloud-arrow-up"></i>
                         <span>Carga de Info</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" data-target="settings">
-                        <i class="ph ph-gear"></i>
-                        <span>Configuración</span>
+                    <a href="#" data-target="patients">
+                        <i class="ph ph-cat"></i>
+                        <span>Pacientes</span>
                     </a>
                 </li>
             </ul>
@@ -148,93 +130,42 @@
             </header>
 
 
-            <!-- Vista General (Dashboard Original) -->
-            <div id="content-home" class="content-wrapper active-section">
-                <div class="page-header">
-                    <h2>Bienvenido de vuelta, Dr.</h2>
-                    <p>Resumen del día en la clínica.</p>
-                </div>
 
-                <!-- Tarjetas de resumen estadístico -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <i class="ph ph-users"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Pacientes Activos</h3>
-                            <p class="stat-number">124</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <i class="ph ph-calendar-check"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Citas Hoy</h3>
-                            <p class="stat-number">8</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <i class="ph ph-first-aid-kit"></i>
-                        </div>
-                        <div class="stat-details">
-                            <h3>Tratamientos</h3>
-                            <p class="stat-number">12</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección principal del dashboard -->
-                <div class="dashboard-panels">
-                    <div class="panel glass-panel w-full">
-                        <div class="panel-header">
-                            <h3>Próximas Citas</h3>
-                            <button class="btn-text">Ver todas</button>
-                        </div>
-                        <div class="appointment-list">
-                            <div class="appointment-item">
-                                <div class="pet-avatar" style="background: #e0f2fe; color: #0284c7;">B</div>
-                                <div class="app-info">
-                                    <h4>Boby (Canino)</h4>
-                                    <p>Chequeo General - 10:00 AM</p>
-                                </div>
-                                <span class="status-badge pending">Pendiente</span>
-                            </div>
-                            <div class="appointment-item">
-                                <div class="pet-avatar" style="background: #fce7f3; color: #db2777;">M</div>
-                                <div class="app-info">
-                                    <h4>Michi (Felino)</h4>
-                                    <p>Vacunación - 11:30 AM</p>
-                                </div>
-                                <span class="status-badge confirmed">Confirmada</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Vista Pacientes (Buscador y Visualización) -->
             <div id="content-patients" class="content-wrapper hidden-section" style="display: none;">
-                <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div>
+                <div class="page-header"
+                    style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 250px;">
                         <h2>Directorio de Pacientes</h2>
                         <p>Busca pacientes y visualiza su historial médico y radiológico.</p>
                     </div>
 
-                    <div class="search-box" style="position: relative; width: 300px;">
-                        <i class="ph ph-magnifying-glass"
-                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-                        <input type="text" id="patient-search-input" placeholder="Buscar por nombre..."
-                            style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
-                        <button id="btn-search-patient" class="btn-primary"
-                            style="position: absolute; right: 4px; top: 4px; bottom: 4px; padding: 0 1rem; border-radius: 6px;">
-                            Buscar
-                        </button>
+                    <div class="search-box"
+                        style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: flex-end; width: 100%; max-width: 500px;">
+                        <input type="date" id="patient-search-date"
+                            style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
+
+                        <div style="position: relative; flex: 2; min-width: 200px;">
+                            <i class="ph ph-magnifying-glass"
+                                style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                            <input type="text" id="patient-search-input" placeholder="Buscar por nombre..."
+                                style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
+                            <button id="btn-search-patient" class="btn-primary"
+                                style="position: absolute; right: 4px; top: 4px; bottom: 4px; padding: 0 1rem; border-radius: 6px; width: auto;">
+                                Buscar
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Botón Volver (Oculto por defecto, se muestra en Vista Detalle) -->
+                <div id="btn-back-patients" style="display: none; margin-top: 1rem;">
+                    <button class="btn-secondary"
+                        style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
+                        <i class="ph ph-arrow-left"></i> Volver al Listado de Pacientes
+                    </button>
+                    <h3 id="detail-patient-name" style="margin-top: 1.5rem; color: var(--text-main);"></h3>
                 </div>
 
                 <!-- Estado de la búsqueda (Loader / Empty State) -->
@@ -253,7 +184,7 @@
             </div>
 
             <!-- Vista Historiales (Subida de PDFs) -->
-            <div id="content-records" class="content-wrapper hidden-section" style="display: none;">
+            <div id="content-records" class="content-wrapper active-section">
                 <div class="page-header">
                     <h2>Historiales Médicos</h2>
                     <p>Analiza documentos y resultados de laboratorio rápidamente.</p>
@@ -307,9 +238,51 @@
                 </div>
             </div>
 
-            <!-- Plantilla de Tarjeta de Diagnóstico (Oculta, usada por JS) -->
+            <!-- Plantilla de Tarjeta Resumen por Paciente (Vista Maestra) -->
+            <template id="patient-summary-template">
+                <div class="patient-summary-card glass-panel"
+                    style="margin-top: 1rem; background: #fff; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.05)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="pet-avatar"
+                                style="background: #e0f2fe; color: #0284c7; width: 56px; height: 56px; margin: 0; font-size: 1.5rem;">
+                                P
+                            </div>
+                            <div>
+                                <h4 class="patient-name"
+                                    style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Nombre</h4>
+                                <p class="report-count"
+                                    style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">X
+                                    Reportes Clínicos</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Última visita</p>
+                            <p class="last-visit-date"
+                                style="font-weight: 600; font-size: 1rem; color: var(--text-main);">DD/MM/YYYY</p>
+                            <i class="ph ph-caret-right"
+                                style="color: var(--primary); font-size: 1.5rem; margin-top: 0.5rem; display: block;"></i>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Plantilla de Tarjeta de Diagnóstico (Vista Detalle, Oculta, usada por JS) -->
             <template id="diagnosis-card-template">
-                <div class="diagnosis-card glass-panel" style="margin-top: 1.5rem; background: #fff;">
+                <div class="diagnosis-card glass-panel"
+                    style="margin-top: 1.5rem; background: #fff; border-left: 4px solid var(--primary);">
+
+                    <!-- Etiqueta de Fecha de Procesamiento -->
+                    <div
+                        style="background: var(--bg-body); padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="ph ph-calendar-blank" style="color: var(--text-muted);"></i>
+                        <span class="processing-date"
+                            style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">Fecha de
+                            Análisis</span>
+                    </div>
+
                     <div class="patient-header"
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #f1f5f9;">
                         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -323,9 +296,17 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="doc-info" style="text-align: right;">
-                            <p class="vet-name" style="font-weight: 600; font-size: 0.95rem;">Dr. ...</p>
-                            <p class="file-source" style="color: var(--text-muted); font-size: 0.85rem;">Archivo.pdf</p>
+                        <div class="doc-info"
+                            style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                            <div>
+                                <p class="vet-name" style="font-weight: 600; font-size: 0.95rem;">Dr. ...</p>
+                                <p class="file-source" style="color: var(--text-muted); font-size: 0.85rem;">Archivo.pdf
+                                </p>
+                            </div>
+                            <button class="btn-text btn-view-pdf"
+                                style="display: none; align-items: center; gap: 0.25rem; font-size: 0.85rem; padding: 0.25rem 0.5rem;">
+                                <i class="ph-fill ph-file-pdf" style="color: #ef4444;"></i> Ver PDF Original
+                            </button>
                         </div>
                     </div>
 
