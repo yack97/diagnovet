@@ -6,10 +6,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.nav-item');
     const toast = document.getElementById('toast');
 
-    // Submit handler
-    loginForm.addEventListener('submit', (e) => {
+    // Check Auth State automatically
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is authenticated, transition to Dashboard
+                loginView.style.display = 'none';
+                loginView.classList.remove('active');
+
+                dashboardView.style.display = 'flex';
+                void dashboardView.offsetWidth;
+                dashboardView.classList.remove('hidden');
+                dashboardView.classList.add('active');
+            } else {
+                // Not authenticated, ensure we show login
+                dashboardView.classList.remove('active');
+                dashboardView.style.display = 'none';
+                dashboardView.classList.add('hidden');
+
+                loginView.style.display = 'flex';
+                void loginView.offsetWidth;
+                loginView.classList.add('active');
+            }
+        });
+    }
+
+    // Submit handler (Login)
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
         const btn = document.getElementById('submit-btn');
         const originalContent = btn.innerHTML;
 
@@ -17,53 +44,58 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i><span>Ingresando...</span>';
         btn.disabled = true;
 
-        setTimeout(() => {
-            // Fade out login
-            loginView.classList.remove('active');
+        try {
+            if (typeof firebase === 'undefined') {
+                throw new Error('Servicio de Auth no disponible. ¿Estás en un entorno de Firebase (serve/deploy)?');
+            }
 
-            setTimeout(() => {
-                loginView.style.display = 'none';
+            // Llamada segura a Firebase Auth
+            await firebase.auth().signInWithEmailAndPassword(email, password);
 
-                // Prepare dashboard
-                dashboardView.style.display = 'flex';
-                // Trigger reflow to restart css animation
-                void dashboardView.offsetWidth;
-                dashboardView.classList.remove('hidden');
-                dashboardView.classList.add('active');
+            showToast('¡Bienvenido a DiagnoVet!');
+            loginForm.reset();
 
-                // Show success toast
-                showToast('¡Bienvenido a DiagnoVet!');
+        } catch (error) {
+            console.error('Login error:', error);
 
-                // Reset login form for future
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-                loginForm.reset();
-            }, 500); // Wait for transition duration
+            let userFriendlyMsg = 'Credenciales inválidas o error de conexión';
 
-        }, 1500); // Simulate network latency
+            // Map Firebase errors to user friendly spanish messages
+            if (error.code === 'auth/invalid-credential') userFriendlyMsg = 'El correo o la contraseña son incorrectos';
+            if (error.code === 'auth/user-not-found') userFriendlyMsg = 'Este usuario no existe en nuestros registros';
+            if (error.code === 'auth/wrong-password') userFriendlyMsg = 'Contraseña incorrecta';
+            if (error.code === 'auth/invalid-email') userFriendlyMsg = 'El formato del correo es inválido';
+
+            showToast('Error: ' + userFriendlyMsg);
+        } finally {
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
     });
 
     // Logout handler
-    logoutBtn.addEventListener('click', () => {
-        dashboardView.classList.remove('active');
-
-        setTimeout(() => {
-            dashboardView.style.display = 'none';
-            dashboardView.classList.add('hidden');
-
-            loginView.style.display = 'flex';
-            void loginView.offsetWidth; // Reflow
-            loginView.classList.add('active');
-
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            if (typeof firebase !== 'undefined') {
+                await firebase.auth().signOut();
+            }
             showToast('Sesión cerrada correctamente');
-        }, 500);
+        } catch (error) {
+            showToast('Error al cerrar sesión');
+            console.error(error);
+        }
     });
 
     // Interactive Sidebar Navigation
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            const target = item.querySelector('a').getAttribute('data-target');
+
+            // Find the anchor tag inside the clicked item
+            const aTag = item.tagName === 'A' ? item : item.querySelector('a');
+            if (!aTag) return;
+
+            const target = aTag.getAttribute('data-target');
 
             // Highlight nav item
             navItems.forEach(nav => nav.classList.remove('active'));
