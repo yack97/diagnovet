@@ -206,6 +206,41 @@
                 </div>
             </div>
 
+            <!-- Vista Pacientes (Buscador y Visualización) -->
+            <div id="content-patients" class="content-wrapper hidden-section" style="display: none;">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2>Directorio de Pacientes</h2>
+                        <p>Busca pacientes y visualiza su historial médico y radiológico.</p>
+                    </div>
+
+                    <div class="search-box" style="position: relative; width: 300px;">
+                        <i class="ph ph-magnifying-glass"
+                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="patient-search-input" placeholder="Buscar por nombre..."
+                            style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
+                        <button id="btn-search-patient" class="btn-primary"
+                            style="position: absolute; right: 4px; top: 4px; bottom: 4px; padding: 0 1rem; border-radius: 6px;">
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estado de la búsqueda (Loader / Empty State) -->
+                <div id="search-status"
+                    style="text-align: center; padding: 3rem 1rem; color: var(--text-muted); display: none;">
+                    <i class="ph ph-spinner ph-spin"
+                        style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem; display: none;"
+                        id="search-loader"></i>
+                    <p id="search-message">Ingresa el nombre de un paciente para ver su historial.</p>
+                </div>
+
+                <!-- Contenedor general para Resultados de Búsqueda -->
+                <div id="patients-results-container" style="margin-top: 2rem;">
+                    <!-- Las tarjetas se insertarán dinámicamente aquí compartiendo la misma plantilla visual -->
+                </div>
+            </div>
+
             <!-- Vista Historiales (Subida de PDFs) -->
             <div id="content-records" class="content-wrapper hidden-section" style="display: none;">
                 <div class="page-header">
