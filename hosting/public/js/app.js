@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         searchMessage.textContent = 'Cargando registros recientes...';
 
         try {
-            const db = firebase.firestore();
+            const db = firebase.firestore(firebase.app(), 'diagnovet');
             const snapshot = await db.collection('extracciones_veterinaria')
                 .orderBy('fecha_procesamiento', 'desc')
                 .limit(50)
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
             searchMessage.textContent = 'Buscando historiales clínicos...';
 
             try {
-                const db = firebase.firestore();
+                const db = firebase.firestore(firebase.app(), 'diagnovet');
                 let ref = db.collection('extracciones_veterinaria');
 
                 // Apply Name filter if exists (Using basic >= <= for MVP, assuming capitalization matches or partial)
