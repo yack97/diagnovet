@@ -277,63 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.resultados && data.resultados.length > 0) {
                 const template = document.getElementById('diagnosis-card-template');
 
-                data.resultados.forEach(res => {
+                // We need to wait for all cards to render because of async storage calls
+                const renderPromises = data.resultados.map(async res => {
                     if (res.status === 'success' && res.datos_extraidos) {
-                        const clone = template.content.cloneNode(true);
-                        const ex = res.datos_extraidos;
-
-                        // Llenar datos de texto
-                        clone.querySelector('.patient-name').textContent = ex.paciente || 'Paciente Desconocido';
-                        clone.querySelector('.pet-avatar').textContent = (ex.paciente ? ex.paciente.charAt(0) : 'P').toUpperCase();
-                        clone.querySelector('.owner-name').textContent = ex.propietario ? `Dueño: ${ex.propietario}` : 'Dueño: No especificado';
-                        clone.querySelector('.vet-name').textContent = ex.veterinario ? `Dr. ${ex.veterinario}` : 'Veterinario No Especificado';
-                        clone.querySelector('.file-source').textContent = res.filename || 'Documento';
-                        clone.querySelector('.diagnosis-text').textContent = ex.diagnostico || 'Sin diagnóstico extraído.';
-
-                        // Recomendaciones opcionales
-                        if (ex.recomendaciones && ex.recomendaciones.trim() !== '') {
-                            const recBlock = clone.querySelector('.recommendations-block');
-                            recBlock.style.display = 'block';
-                            clone.querySelector('.recommendations-text').textContent = ex.recomendaciones;
+                        try {
+                            const card = await createDiagnosisCard(res, template);
+                            container.appendChild(card);
+                        } catch (err) {
+                            console.error("Error creating card for", res.filename, err);
                         }
-
-                        // Llenar datos de imágenes
-                        const imgGrid = clone.querySelector('.img-grid');
-                        if (res.imagenes_urls && res.imagenes_urls.length > 0) {
-                            res.imagenes_urls.forEach(urlGs => {
-                                // Las urls de Firebase Storage o GCP a veces vienen con gs://
-                                // Para mostrarlas directamente en img src en un navegador público,
-                                // Google Cloud Storage usa el formato de URL de consola storage.googleapis.com
-                                let publicUrl = urlGs;
-                                if (urlGs.startsWith('gs://')) {
-                                    const parts = urlGs.replace('gs://', '').split('/');
-                                    const bucket = parts.shift();
-                                    const path = parts.join('/');
-                                    // Utilizar la API pública de Google Storage (si el bucket es público)
-                                    // De lo contrario, se requerirá firmar la URL en el backend
-                                    publicUrl = `https://storage.googleapis.com/${bucket}/${path}`;
-                                }
-
-                                const imgWrapper = document.createElement('div');
-                                imgWrapper.style.cssText = 'border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; height: 180px;';
-
-                                const imgEl = document.createElement('img');
-                                imgEl.src = publicUrl;
-                                imgEl.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; cursor: pointer;';
-                                imgEl.alt = 'Imagen extraída';
-
-                                // Efecto hover simple
-                                imgEl.onmouseover = () => imgEl.style.transform = 'scale(1.05)';
-                                imgEl.onmouseout = () => imgEl.style.transform = 'scale(1)';
-
-                                imgWrapper.appendChild(imgEl);
-                                imgGrid.appendChild(imgWrapper);
-                            });
-                        } else {
-                            imgGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">No se encontraron imágenes extraibles en este documento.</p>';
-                        }
-
-                        container.appendChild(clone);
                     } else if (res.status === 'error') {
                         const errDiv = document.createElement('div');
                         errDiv.className = 'glass-panel';
@@ -342,6 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         container.appendChild(errDiv);
                     }
                 });
+
+                await Promise.all(renderPromises);
 
                 ocrResults.classList.remove('hidden');
                 showToast('Documentos analizados exitosamente');
@@ -361,6 +315,75 @@ document.addEventListener('DOMContentLoaded', () => {
             btnUpload.disabled = selectedFiles.length === 0;
         }
     });
+
+    // Utility: Generate UI Card and Load Firebase Images
+    async function createDiagnosisCard(res, template) {
+        const clone = template.content.cloneNode(true);
+        const ex = res.datos_extraidos;
+
+        // Populate text data
+        clone.querySelector('.patient-name').textContent = ex.paciente || 'Paciente Desconocido';
+        clone.querySelector('.pet-avatar').textContent = (ex.paciente ? ex.paciente.charAt(0) : 'P').toUpperCase();
+        clone.querySelector('.owner-name').textContent = ex.propietario ? `Dueño: ${ex.propietario}` : 'Dueño: No especificado';
+        clone.querySelector('.vet-name').textContent = ex.veterinario ? `Dr. ${ex.veterinario}` : 'Veterinario No Especificado';
+        clone.querySelector('.file-source').textContent = res.filename || 'Documento';
+        clone.querySelector('.diagnosis-text').textContent = ex.diagnostico || 'Sin diagnóstico extraído.';
+
+        // Optional recommendations
+        if (ex.recomendaciones && ex.recomendaciones.trim() !== '') {
+            const recBlock = clone.querySelector('.recommendations-block');
+            recBlock.style.display = 'block';
+            clone.querySelector('.recommendations-text').textContent = ex.recomendaciones;
+        }
+
+        // Populate images securely using Firebase Storage SDK
+        const imgGrid = clone.querySelector('.img-grid');
+        if (res.imagenes_urls && res.imagenes_urls.length > 0) {
+            // Wait for all GS URLs to be resolved into temporary signed URLs
+            await Promise.all(res.imagenes_urls.map(async urlGs => {
+                let publicUrl = '';
+                try {
+                    if (urlGs.startsWith('gs://')) {
+                        const storageRef = firebase.storage().refFromURL(urlGs);
+                        // Obtain secure access token for private buckets
+                        publicUrl = await storageRef.getDownloadURL();
+                    } else {
+                        publicUrl = urlGs;
+                    }
+
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.style.cssText = 'border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; height: 180px;';
+
+                    const imgEl = document.createElement('img');
+                    imgEl.src = publicUrl;
+                    imgEl.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; cursor: pointer;';
+                    imgEl.alt = 'Imagen extraída';
+
+                    // Hover effect
+                    imgEl.onmouseover = () => imgEl.style.transform = 'scale(1.05)';
+                    imgEl.onmouseout = () => imgEl.style.transform = 'scale(1)';
+
+                    imgWrapper.appendChild(imgEl);
+                    imgGrid.appendChild(imgWrapper);
+
+                } catch (imgErr) {
+                    console.error("Failed to load image securely:", urlGs, imgErr);
+                }
+            }));
+
+            // If all images failed to load, show a message
+            if (imgGrid.children.length === 0) {
+                imgGrid.innerHTML = '<p style="color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem;"><i class="ph ph-warning"></i> Error cargando las imágenes por falta de permisos en Firebase Storage.</p>';
+            }
+        } else {
+            imgGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">No se encontraron imágenes extraibles en este documento.</p>';
+        }
+
+        // Create a root wrapper element since DocumentFragment can't be returned and appended asynchronously easily
+        const rootDiv = document.createElement('div');
+        rootDiv.appendChild(clone);
+        return rootDiv;
+    }
 
     // Utility: Show Toast notification
     function showToast(message) {
