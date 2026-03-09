@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <!-- Iconos Phosphor Icons para un aspecto premium -->
-    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 
     <link rel="preconnect" href="https://storage.googleapis.com">
 
@@ -21,7 +21,7 @@
     <script defer src="/__/firebase/10.8.0/firebase-storage-compat.js"></script>
     <script defer src="/__/firebase/init.js"></script>
 
-    <script defer src="js/app.js?v=3.4"></script>
+    <script defer src="js/app.js?v=3.6"></script>
 </head>
 
 <body>
@@ -203,8 +203,7 @@
                             <h4>Arrastra tus PDFs aquí o haz clic para explorar</h4>
                             <p>Soporta múltiples archivos PDF (.pdf)</p>
                             <input type="file" id="pdf-upload" multiple accept=".pdf" class="file-input-hidden">
-                            <button type="button" class="btn-secondary"
-                                onclick="document.getElementById('pdf-upload').click()">
+                            <button type="button" class="btn-secondary" id="btn-select-files">
                                 Seleccionar Archivos
                             </button>
                         </div>
@@ -241,9 +240,7 @@
             <!-- Plantilla de Tarjeta Resumen por Paciente (Vista Maestra) -->
             <template id="patient-summary-template">
                 <div class="patient-summary-card glass-panel"
-                    style="margin-top: 1rem; background: #fff; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.05)'"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    style="margin-top: 1rem; background: #fff; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div class="pet-avatar"

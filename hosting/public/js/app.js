@@ -161,21 +161,31 @@ document.addEventListener('DOMContentLoaded', () => {
         searchMessage.textContent = 'Cargando registros recientes...';
 
         try {
-            const db = firebase.firestore(firebase.app(), 'diagnovet');
-            const snapshot = await db.collection('extracciones_veterinaria')
-                .orderBy('fecha_procesamiento', 'desc')
-                .limit(50)
-                .get();
+            const user = firebase.auth().currentUser;
+            const idToken = await user.getIdToken(true);
+
+            const response = await fetch('https://ocr-veterinaria-43xon5tdla-ew.a.run.app/?action=list-patients', {
+                headers: { 'Authorization': `Bearer ${idToken}` }
+            });
+
+            if (!response.ok) throw new Error('Error cargando pacientes del servidor');
+            const result = await response.json();
 
             searchLoader.style.display = 'none';
 
-            if (snapshot.empty) {
+            if (!result.patients || result.patients.length === 0) {
                 searchMessage.textContent = 'Aún no hay historiales clínicos registrados.';
                 return;
             }
 
-            // Save raw data to state
-            currentPatientsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            searchStatus.style.display = 'none';
+
+            // Map backend field names to frontend field names
+            // Backend stores as 'metadatos_extraidos', frontend expects 'datos_extraidos'
+            currentPatientsData = result.patients.map(p => ({
+                ...p,
+                datos_extraidos: p.metadatos_extraidos || p.datos_extraidos || {}
+            }));
 
             // Render Master View
             renderMasterView(currentPatientsData);
@@ -192,12 +202,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('pdf-upload');
+    const selectFilesBtn = document.getElementById('btn-select-files');
     const fileListContainer = document.getElementById('file-list');
     const btnUpload = document.getElementById('btn-upload');
     const uploadForm = document.getElementById('upload-form');
     const ocrResults = document.getElementById('ocr-results');
 
     let selectedFiles = [];
+
+    if (selectFilesBtn) {
+        selectFilesBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+    }
 
     // Drag and drop events
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -265,20 +282,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div class="file-info">
-                        <div class="file-icon">
-                            <i class="ph-fill ph-file-pdf"></i>
-                        </div>
-                        <div class="file-details">
-                            <h5>${file.name}</h5>
-                            <span>${sizeFormat} MB &bull; PDF Document</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-remove" data-index="${index}">
-                        <i class="ph ph-trash"></i>
-                    </button>
-                `;
+
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+
+                const fileIcon = document.createElement('div');
+                fileIcon.className = 'file-icon';
+                const icon = document.createElement('i');
+                icon.className = 'ph-fill ph-file-pdf';
+                fileIcon.appendChild(icon);
+
+                const fileDetails = document.createElement('div');
+                fileDetails.className = 'file-details';
+                const title = document.createElement('h5');
+                title.textContent = file.name;
+                const details = document.createElement('span');
+                details.textContent = `${sizeFormat} MB - PDF Document`;
+                fileDetails.appendChild(title);
+                fileDetails.appendChild(details);
+
+                fileInfo.appendChild(fileIcon);
+                fileInfo.appendChild(fileDetails);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn-remove';
+                removeBtn.setAttribute('data-index', String(index));
+                const removeIcon = document.createElement('i');
+                removeIcon.className = 'ph ph-trash';
+                removeBtn.appendChild(removeIcon);
+
+                fileItem.appendChild(fileInfo);
+                fileItem.appendChild(removeBtn);
                 fileListContainer.appendChild(fileItem);
             });
 
@@ -360,7 +395,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         const errDiv = document.createElement('div');
                         errDiv.className = 'glass-panel';
                         errDiv.style.cssText = 'margin-top: 1.5rem; background: #fee2e2; border-color: #fca5a5;';
-                        errDiv.innerHTML = `<h4 style="color: #b91c1c;">Error procesando ${res.filename}</h4><p style="color: #991b1b; font-size: 0.9rem;">${res.error_message}</p>`;
+
+                        const errTitle = document.createElement('h4');
+                        errTitle.style.color = '#b91c1c';
+                        errTitle.textContent = `Error procesando ${res.filename || 'archivo'}`;
+
+                        const errBody = document.createElement('p');
+                        errBody.style.cssText = 'color: #991b1b; font-size: 0.9rem;';
+                        errBody.textContent = res.error_message || 'No se pudo procesar el documento.';
+
+                        errDiv.appendChild(errTitle);
+                        errDiv.appendChild(errBody);
                         container.appendChild(errDiv);
                     }
                 });
@@ -401,86 +446,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnSearchPatient) {
         btnSearchPatient.addEventListener('click', async () => {
-            const queryName = inputSearchPatient.value.trim();
+            const queryName = inputSearchPatient.value.trim().toUpperCase();
             const queryDate = inputSearchDate ? inputSearchDate.value : '';
 
             if (!queryName && !queryDate) {
-                // If both empty, load all
+                // If both empty, reload all
                 loadAllPatients();
                 return;
             }
 
+            // If data hasn't been loaded yet, load it first
+            if (currentPatientsData.length === 0) {
+                await loadAllPatients();
+            }
+
             // Restore from any detail view
             btnBackPatients.style.display = 'none';
-            patientsResultsContainer.innerHTML = '';
-            searchStatus.style.display = 'block';
-            searchLoader.style.display = 'inline-block';
-            searchMessage.textContent = 'Buscando historiales clínicos...';
 
-            try {
-                const db = firebase.firestore(firebase.app(), 'diagnovet');
-                let ref = db.collection('extracciones_veterinaria');
+            let results = [...currentPatientsData];
 
-                // Apply Name filter if exists (Using basic >= <= for MVP, assuming capitalization matches or partial)
-                if (queryName) {
-                    ref = ref.where('datos_extraidos.paciente', '>=', queryName)
-                        .where('datos_extraidos.paciente', '<=', queryName + '\uf8ff');
-                }
-
-                const snapshot = await ref.get();
-                searchLoader.style.display = 'none';
-
-                if (snapshot.empty) {
-                    searchMessage.textContent = 'No se encontraron historiales con esos criterios.';
-                    currentPatientsData = [];
-                    return;
-                }
-
-                let results = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Emulate Date Filter in client side to avoid complex composite indexes for this MVP
-                if (queryDate) {
-                    // queryDate format is "YYYY-MM-DD"
-                    // fecha_procesamiento is an ISO string "2023-10-05T14:48:00.000Z"
-                    results = results.filter(doc => {
-                        if (!doc.fecha_procesamiento) return false;
-                        return doc.fecha_procesamiento.startsWith(queryDate);
-                    });
-                }
-
-                if (results.length === 0) {
-                    searchMessage.textContent = 'No se encontraron historiales en esa fecha.';
-                    currentPatientsData = [];
-                    return;
-                }
-
-                currentPatientsData = results;
-                renderMasterView(currentPatientsData);
-                showToast(`Se encontraron ${results.length} reportes`);
-
-            } catch (error) {
-                console.error("Firestore Search Error:", error);
-                searchLoader.style.display = 'none';
-                searchMessage.textContent = 'Ocurrió un error al buscar en la base de datos.';
-                showToast('Error en la búsqueda');
+            // Filter by Name (case-insensitive partial match)
+            if (queryName) {
+                results = results.filter(doc => {
+                    const patientName = (doc.datos_extraidos && doc.datos_extraidos.paciente) || '';
+                    return patientName.toUpperCase().includes(queryName);
+                });
             }
-        });
 
-        inputSearchPatient.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') btnSearchPatient.click();
-        });
+            // Filter by Date
+            if (queryDate) {
+                results = results.filter(doc => {
+                    if (!doc.fecha_procesamiento) return false;
+                    return doc.fecha_procesamiento.startsWith(queryDate);
+                });
+            }
 
-        if (inputSearchDate) {
-            inputSearchDate.addEventListener('change', () => btnSearchPatient.click());
-        }
+            if (results.length === 0) {
+                patientsResultsContainer.innerHTML = '';
+                searchStatus.style.display = 'block';
+                searchLoader.style.display = 'none';
+                searchMessage.textContent = 'No se encontraron historiales con esos criterios.';
+                return;
+            }
 
-        // Back button listener (Detail -> Master)
-        btnBackPatients.addEventListener('click', () => {
-            btnBackPatients.style.display = 'none';
-            searchBoxControls.style.display = 'flex'; // Restore search controls
-            renderMasterView(currentPatientsData);
+            searchStatus.style.display = 'none';
+            renderMasterView(results);
+            showToast(`Se encontraron ${results.length} reportes`);
         });
     }
+
+    inputSearchPatient.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') btnSearchPatient.click();
+    });
+
+    if (inputSearchDate) {
+        inputSearchDate.addEventListener('change', () => btnSearchPatient.click());
+    }
+
+    // Back button listener (Detail -> Master)
+    btnBackPatients.addEventListener('click', () => {
+        btnBackPatients.style.display = 'none';
+        searchBoxControls.style.display = 'flex'; // Restore search controls
+        renderMasterView(currentPatientsData);
+    });
 
     // =========================================
     // MASTER VIEW RENDERING (Group by Patient)
@@ -648,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         const data = await response.json();
 
-                        window.open(data.signed_url, '_blank');
+                        window.open(data.signed_url, '_blank', 'noopener,noreferrer');
                     } catch (err) {
                         console.error("Error cargando PDF Original:", err);
                         showToast('Error cargando PDF Original');
